@@ -5,6 +5,9 @@ ROS2 wrapper for trakstar driver based on:
 - https://github.com/ChristophJud/ATC3DGTracker 
 - https://github.com/seanyun/trakstar_ros
 
+### Docker:
+
+Install Docker following the [official instructions](https://docs.docker.com/engine/install/ubuntu/) and [Linux post-install](https://docs.docker.com/engine/install/linux-postinstall/).
 
 ## Runnning with docker:
 
