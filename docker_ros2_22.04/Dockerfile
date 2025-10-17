@@ -5,7 +5,9 @@ FROM ros:humble-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# ---------------------------------------------------------
+# Install system and ROS dependencies
+# ---------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -15,26 +17,37 @@ RUN apt-get update && apt-get install -y \
     libusb-dev \
     udev \
     usbutils \
+    iproute2 \
+    net-tools \
+    # To get ros2 messages outside the container
+    ros-humble-rmw-cyclonedds-cpp \ 
     && rm -rf /var/lib/apt/lists/*
 
+# ---------------------------------------------------------
+# Set environment variables for ROS2
+# ---------------------------------------------------------
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV ROS_DOMAIN_ID=0
+
+# ---------------------------------------------------------
 # Set the ROS2 workspace
+# ---------------------------------------------------------
 WORKDIR /trakstar_ws/src
 
-# Copy only the ROS2 workspace folder
+# Copy your ROS2 package
 COPY trakstar_ws/src/trakstar /trakstar_ws/src/trakstar
 
-# Copy udev rules
+# ---------------------------------------------------------
+# Udev rules
+# ---------------------------------------------------------
 COPY 99-trakstar.rules /etc/udev/rules.d/99-libusb.rules
-
-# Reload udev rules inside container
 RUN udevadm control --reload-rules && udevadm trigger || true
 
-# Build the ROS2 workspace
+# ---------------------------------------------------------
+# Build setup and auto-source
+# ---------------------------------------------------------
 WORKDIR /trakstar_ws
-RUN . /opt/ros/humble/setup.sh 
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+RUN echo "source /trakstar_ws/install/setup.bash" >> /root/.bashrc
 
-# Auto-source ROS2 and workspace on container start
-RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc 
-
-WORKDIR /trakstar_ws
 CMD ["/bin/bash"]

@@ -1,3 +1,5 @@
 trakstar_ws/install/
 trakstar_ws/build/
 trakstar_ws/log/
+
+.vscode/
