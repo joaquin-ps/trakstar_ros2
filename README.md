@@ -25,6 +25,7 @@ Build trakstar code:
 ```
 cd /trakstar_ws
 colcon build
+source install/setup.bash
 ```
 
 Test trakstar: 
@@ -32,7 +33,11 @@ Test trakstar:
 ./build/trakstar/PointATC3DG_test  
 ```
 
+Launch node:
+```
+ros2 launch trakstar trakstar_driver.launch.py publish_tf:=true
+```
+
 ## To Do:
 
-- Get ros2 to find the package (ros2 pkg list).
-- Create wrapper to tf publisher. 
+- Cleanup ROS 2 wrapper, verify it is working properly. 

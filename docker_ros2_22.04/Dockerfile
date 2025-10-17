@@ -48,6 +48,6 @@ RUN udevadm control --reload-rules && udevadm trigger || true
 # ---------------------------------------------------------
 WORKDIR /trakstar_ws
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
-RUN echo "source /trakstar_ws/install/setup.bash" >> /root/.bashrc
+# RUN echo "source /trakstar_ws/install/setup.bash" >> /root/.bashrc
 
 CMD ["/bin/bash"]
