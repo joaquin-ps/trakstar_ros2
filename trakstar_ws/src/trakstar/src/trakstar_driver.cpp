@@ -47,6 +47,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include "trakstar/PointATC3DG.hpp"
+#include "trakstar/msg/trakstar_msg.hpp"
 
 using namespace trakstar;
 using std::string;
@@ -125,8 +126,8 @@ public:
         setupPivotPoints();
 
         // Initialize ROS2 publishers
-        trakstar_pub_ = this->create_publisher<geometry_msgs::msg::TransformStamped>("trakstar_msg", 1);
-        trakstar_raw_pub_ = this->create_publisher<geometry_msgs::msg::TransformStamped>("trakstar_raw_msg", 1);
+        trakstar_pub_ = this->create_publisher<trakstar::msg::TrakstarMsg>("trakstar_msg", 1);
+        trakstar_raw_pub_ = this->create_publisher<trakstar::msg::TrakstarMsg>("trakstar_raw_msg", 1);
 
         // Initialize TF broadcaster if needed
         if (publish_tf) {
@@ -175,6 +176,14 @@ private:
             return;
         }
 
+        // Create messages
+        trakstar::msg::TrakstarMsg msg;
+        trakstar::msg::TrakstarMsg msg_raw;
+        msg.header.stamp = this->now();
+        msg_raw.header.stamp = this->now();
+        msg.n_tracker = num_sen_;
+        msg_raw.n_tracker = num_sen_;
+
         std::vector<geometry_msgs::msg::TransformStamped> transforms(num_sen_);
 
         for (int i = 0; i < num_sen_; ++i) {
@@ -189,13 +198,7 @@ private:
 
             // Store raw transform
             tf2::Transform raw_transform(mat, pos);
-            transforms[i].transform = tf2::toMsg(raw_transform);
-            transforms[i].header.stamp = this->now();
-            transforms[i].header.frame_id = "trakstar_base";
-            transforms[i].child_frame_id = "trakstar" + std::to_string(i) + "_raw";
-            
-            // Publish raw transform
-            trakstar_raw_pub_->publish(transforms[i]);
+            msg_raw.transform[i] = tf2::toMsg(raw_transform);
 
             // Apply coordinate frame transformation
             mat = ros_to_trakstar_ * mat;
@@ -211,23 +214,21 @@ private:
 
             // Store processed transform
             tf2::Transform processed_transform(mat, pos);
+            msg.transform[i] = tf2::toMsg(processed_transform);
+
+            // Prepare TF transform
             transforms[i].transform = tf2::toMsg(processed_transform);
-            transforms[i].header.stamp = this->now();
+            transforms[i].header.stamp = msg.header.stamp;
             transforms[i].header.frame_id = "trakstar_base";
             transforms[i].child_frame_id = "trakstar" + std::to_string(i);
-
-            // Publish processed transform
-            trakstar_pub_->publish(transforms[i]);
         }
+
+        // Publish messages
+        trakstar_pub_->publish(msg);
+        trakstar_raw_pub_->publish(msg_raw);
 
         // Publish TF transforms if enabled
         if (tf_broadcaster_) {
-            std::string frames[4] = {"trakstar0", "trakstar1", "trakstar2", "trakstar3"};
-            for (int kk = 0; kk < num_sen_; kk++) {
-                transforms[kk].header.stamp = this->now();
-                transforms[kk].header.frame_id = "trakstar_base";
-                transforms[kk].child_frame_id = frames[kk];
-            }
             tf_broadcaster_->sendTransform(transforms);
         }
     }
@@ -242,8 +243,8 @@ private:
     int num_sen_;
 
     // ROS2 publishers
-    rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr trakstar_pub_;
-    rclcpp::Publisher<geometry_msgs::msg::TransformStamped>::SharedPtr trakstar_raw_pub_;
+    rclcpp::Publisher<trakstar::msg::TrakstarMsg>::SharedPtr trakstar_pub_;
+    rclcpp::Publisher<trakstar::msg::TrakstarMsg>::SharedPtr trakstar_raw_pub_;
 
     // TF broadcaster
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

@@ -1,7 +1,6 @@
-# Trakstar message definition
-# Contains transform data for multiple trackers
-# TODO: Consider using custom message type instead of geometry_msgs/TransformStamped
-
 std_msgs/Header header
-int32 n_tracker
-geometry_msgs/Transform[] transform
+geometry_msgs/Transform[4] transform
+uint8 n_tracker
+
+uint8 LEFT = 0
+uint8 RIGHT = 1

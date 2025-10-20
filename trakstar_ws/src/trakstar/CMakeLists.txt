@@ -14,9 +14,18 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
+# Generate messages
+find_package(rosidl_default_generators REQUIRED)
+
 include_directories(
   include
   /usr/include/usb
+)
+
+# Generate message interfaces
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/TrakstarMsg.msg"
+  DEPENDENCIES std_msgs geometry_msgs
 )
 
 # Create the trakstar library
@@ -52,6 +61,10 @@ ament_target_dependencies(trakstar_driver
   tf2_ros
   tf2_geometry_msgs
 )
+
+# Link against generated message interfaces
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(trakstar_driver "${cpp_typesupport_target}")
 
 # Create the test executable
 add_executable(PointATC3DG_test
@@ -90,5 +103,8 @@ ament_export_dependencies(
   tf2_ros
   tf2_geometry_msgs
 )
+
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()
