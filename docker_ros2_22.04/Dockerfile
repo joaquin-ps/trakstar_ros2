@@ -19,8 +19,20 @@ RUN apt-get update && apt-get install -y \
     usbutils \
     iproute2 \
     net-tools \
+    python3-colcon-common-extensions \
+    python3-rosdep \
     # To get ros2 messages outside the container
-    ros-humble-rmw-cyclonedds-cpp \ 
+    ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-rosidl-generator-c \
+    ros-humble-rosidl-generator-cpp \
+    ros-humble-rosidl-generator-py \
+    ros-humble-rosidl-typesupport-c \
+    ros-humble-rosidl-typesupport-cpp \
+    ros-humble-rosidl-default-generators \
+    ros-humble-rosidl-default-runtime \
+    ros-humble-rviz2 \
+    ros-humble-rviz-common \
+    ros-humble-rviz-default-plugins \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------

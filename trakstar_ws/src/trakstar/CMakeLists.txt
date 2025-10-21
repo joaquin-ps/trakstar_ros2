@@ -78,6 +78,10 @@ ament_target_dependencies(PointATC3DG_test rclcpp)
 # Install targets
 install(TARGETS
   trakstar_lib
+  DESTINATION lib
+)
+
+install(TARGETS
   trakstar_driver
   PointATC3DG_test
   DESTINATION lib/${PROJECT_NAME}
@@ -104,7 +108,7 @@ ament_export_dependencies(
   tf2_geometry_msgs
 )
 
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()
