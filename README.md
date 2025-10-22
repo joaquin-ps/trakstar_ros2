@@ -49,6 +49,9 @@ uint8 n_tracker
 ### Example Usage
 
 ```bash
+# Test hardware connection
+./build/trakstar/PointATC3DG_test
+
 # View transform data
 ros2 topic echo /trakstar/transforms
 
