@@ -5,9 +5,26 @@
 
 echo "Starting Trakstar ROS2 driver with RViz visualization..."
 
+# Check if user is in docker group
+if ! groups $USER | grep -q docker; then
+    echo "Warning: User $USER is not in the docker group."
+    echo "To fix this, run:"
+    echo "  sudo usermod -aG docker $USER"
+    echo "  newgrp docker"
+    echo "Then log out and back in, or restart your terminal."
+    echo ""
+    echo "Continuing with launch (may require sudo)..."
+fi
+
 # Allow X11 connections from Docker containers
 echo "Setting up X11 forwarding..."
 xhost +local:docker
+
+# Build the workspace first
+echo "Building Trakstar workspace..."
+docker run --rm -v $(pwd)/trakstar_ws:/trakstar_ws \
+    trakstar_ros2_22.04 \
+    bash -c "cd /trakstar_ws && source /opt/ros/humble/setup.bash && colcon build"
 
 # Start the Trakstar driver in the background
 echo "Launching Trakstar driver..."
@@ -28,7 +45,7 @@ docker run -it --rm --net=host \
     -v $(pwd)/trakstar_ws:/trakstar_ws \
     --name trakstar_rviz_container \
     trakstar_ros2_22.04 \
-    bash -c "cd /trakstar_ws && source /opt/ros/humble/setup.bash && source install/setup.bash && rviz2 -d /trakstar_ws/src/trakstar/rviz/trakstar.rviz"
+    bash -c "cd /trakstar_ws && source /opt/ros/humble/setup.bash && source install/setup.bash && rviz2 -d src/trakstar/rviz/trakstar.rviz"
 
 # Cleanup function
 cleanup() {
